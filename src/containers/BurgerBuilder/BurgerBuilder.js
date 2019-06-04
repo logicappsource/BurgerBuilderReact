@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-
+import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 import Aux from '../../hoc/Aux/Aux';
 import Burger from '../../components/Burger/Burger';
 import BuildControls from '../../components/Burger/BuildControls/BuildControls';
@@ -105,7 +105,7 @@ class BurgerBuilder extends Component {
         this.setState({ loading: false, purchasing: false })
         console.log(error)
       })
-      
+
   }
 
   render() {
@@ -145,4 +145,4 @@ class BurgerBuilder extends Component {
   }
 }
 
-export default BurgerBuilder;
+export default withErrorHandler(BurgerBuilder, axios);
