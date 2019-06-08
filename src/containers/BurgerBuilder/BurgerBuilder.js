@@ -128,12 +128,11 @@ class BurgerBuilder extends Component {
         ingredients={this.state.ingredients}
         price={this.state.totalPrice}
         purchasedCancelled={this.purchaseCancelHandler}
-        purchasedContinued={this.purchaseContinueHandler} />
-
-      };
+        purchasedContinued={this.purchaseContinueHandler} />;
+      }
 
       if (this.state.loading) {
-          orderSummary = <Spinner />
+          orderSummary = <Spinner />;
       }
 
     return (
