@@ -14,7 +14,13 @@ class ContactData extends Component {
              type: 'text',
              placeholder: 'Your Name'
            },
-           value: ''
+           value: '',
+           validation: {
+             required:true,
+             valid: false,
+             minLength: 2,
+             maxLength: 6
+           }
          },
           street: {
             elementType: 'input',
@@ -22,7 +28,11 @@ class ContactData extends Component {
               type: 'text',
               placeholder: 'Street'
             },
-            value: ''
+            value: '',
+            validation: {
+              required:true,
+              valid: false
+            }
           },
           zipCode: {
             elementType: 'input',
@@ -30,7 +40,13 @@ class ContactData extends Component {
               type: 'text',
               placeholder: 'Zipcode'
             },
-            value: ''
+            value: '',
+            validation: {
+              required:true,
+              valid: false,
+              minLength: 2,
+              maxLength: 6
+            }
           },
           country: {
             elementType: 'input',
@@ -38,7 +54,13 @@ class ContactData extends Component {
               type: 'text',
               placeholder: 'Country'
             },
-            value: ''
+            value: '',
+            validation: {
+              required:true,
+              valid: false,
+              minLength: 1,
+              maxLength: 3
+            }
           },
           email: {
             elementType: 'input',
@@ -46,7 +68,11 @@ class ContactData extends Component {
               type: 'text',
               placeholder: 'Your Email'
             },
-            value: ''
+            value: '',
+            validation: {
+              required:true,
+              valid: false
+            }
           },
           deliveryMethod: {
             elementType: 'select',
@@ -65,11 +91,15 @@ class ContactData extends Component {
 orderHandler = (event) => {
   event.preventDefault();
       this.setState({ loading: true });
+      const formData = {};
+      for (let formElementIdentifier in this.state.orderForm) {
+        formData[formElementIdentifier] = this.state.orderForm[formElementIdentifier].value;
+      }
       const order = {
         ingredients: this.props.ingredients,
         price: this.props.price,
+        orderData: formData
       }
-
       axios.post( '/orders.json', order)
         .then(response => {
           this.setState({ loading: false})
@@ -81,6 +111,24 @@ orderHandler = (event) => {
         })
 }
 
+checkValidity(value, rules) {
+    let isValid = true;
+
+    if (rules.required) {
+       isValid = value.trim() !== '' && isValid;
+    }
+
+    if(rules.minLength) {
+      isValid = value.lenght >= rules.minLength && isValid;
+    }
+
+    if(rules.maxLength){
+      isValid = value.length <= rules.maxLength && isValid;
+    }
+
+    return isValid;
+}
+
 inputChangedHandler = (event, inputIdentifier) => {
     const updatedOrderForm = {
       ...this.state.orderForm
@@ -89,7 +137,9 @@ inputChangedHandler = (event, inputIdentifier) => {
       ...updatedOrderForm[inputIdentifier]
     };
     updatedFormElement.value = event.target.value;
+    updatedFormElement.valid = this.checkValidity(updatedFormElement.value, updatedFormElement.validation)
     updatedOrderForm[inputIdentifier] = updatedFormElement;
+    console.log(updatedFormElement);
     this.setState({orderForm: updatedOrderForm});
 }
 
@@ -103,7 +153,7 @@ inputChangedHandler = (event, inputIdentifier) => {
     }
 
     let form = (
-      <form>
+      <form onSubmit={this.orderHandler}>
           {formElementsArray.map(formElement => (
             <Input
               key={formElement.id}
@@ -113,7 +163,7 @@ inputChangedHandler = (event, inputIdentifier) => {
               changed={(event) => this.inputChangedHandler(event, formElement.id)}
             />
           ))}
-          <Button btntype="Success" clicked={this.orderHandler}>ORDER </Button>
+          <Button btntype="Success">ORDER </Button>
       </form>
     );
 
