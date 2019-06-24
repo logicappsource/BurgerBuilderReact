@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+
 import Button from '../../../components/UI/Button/Button';
 import Spinner from '../../../components/UI/Spinner/Spinner';
 import classes from './ContactData.css';
@@ -17,10 +18,9 @@ class ContactData extends Component {
            value: '',
            validation: {
              required:true,
-             valid: false,
-             minLength: 2,
-             maxLength: 6
-           }
+           },
+            valid: false,
+            touched: false
          },
           street: {
             elementType: 'input',
@@ -31,8 +31,9 @@ class ContactData extends Component {
             value: '',
             validation: {
               required:true,
-              valid: false
-            }
+            },
+              valid: false,
+              touched: false
           },
           zipCode: {
             elementType: 'input',
@@ -43,10 +44,9 @@ class ContactData extends Component {
             value: '',
             validation: {
               required:true,
-              valid: false,
-              minLength: 2,
-              maxLength: 6
-            }
+            },
+            valid: false,
+            touched: false
           },
           country: {
             elementType: 'input',
@@ -57,10 +57,9 @@ class ContactData extends Component {
             value: '',
             validation: {
               required:true,
+            },
               valid: false,
-              minLength: 1,
-              maxLength: 3
-            }
+              touched: false
           },
           email: {
             elementType: 'input',
@@ -71,8 +70,9 @@ class ContactData extends Component {
             value: '',
             validation: {
               required:true,
-              valid: false
-            }
+            },
+              valid: false,
+              touched: false
           },
           deliveryMethod: {
             elementType: 'select',
@@ -82,9 +82,12 @@ class ContactData extends Component {
                 {value: 'cheapest', displayValue: 'Cheapest'}
               ]
             },
-            value: ''
+            value: 'cheapest',
+            validation: {},
+            valid: true
           }
     },
+    formIsValid: false,
     loading: false
   }
 
@@ -113,6 +116,9 @@ orderHandler = (event) => {
 
 checkValidity(value, rules) {
     let isValid = true;
+    if(!rules) {
+      return true;
+    }
 
     if (rules.required) {
        isValid = value.trim() !== '' && isValid;
@@ -125,7 +131,6 @@ checkValidity(value, rules) {
     if(rules.maxLength){
       isValid = value.length <= rules.maxLength && isValid;
     }
-
     return isValid;
 }
 
@@ -137,10 +142,16 @@ inputChangedHandler = (event, inputIdentifier) => {
       ...updatedOrderForm[inputIdentifier]
     };
     updatedFormElement.value = event.target.value;
-    updatedFormElement.valid = this.checkValidity(updatedFormElement.value, updatedFormElement.validation)
+    updatedFormElement.valid = this.checkValidity(updatedFormElement.value, updatedFormElement.validation);
+    updatedFormElement.touched = true;
     updatedOrderForm[inputIdentifier] = updatedFormElement;
+
+    let formIsValid = true
+    for (let inputIdentifier in updatedOrderForm) {
+      formIsValid = updatedOrderForm[inputIdentifier].valid && formIsValid;
+    }
     console.log(updatedFormElement);
-    this.setState({orderForm: updatedOrderForm});
+    this.setState({orderForm: updatedOrderForm, formIsValid: formIsValid});
 }
 
   render() {
@@ -160,10 +171,13 @@ inputChangedHandler = (event, inputIdentifier) => {
               elementType={formElement.config.elementType}
               elementConfig={formElement.config.elementConfig}
               value={formElement.config.value}
+              shouldValidate={formElement.config.validation}
+              touched={formElement.config.touched}
+              invalid={!formElement.config.valid}
               changed={(event) => this.inputChangedHandler(event, formElement.id)}
             />
           ))}
-          <Button btntype="Success">ORDER </Button>
+          <Button btntype="Success" disabled={!this.state.formIsValid}>ORDER </Button>
       </form>
     );
 
