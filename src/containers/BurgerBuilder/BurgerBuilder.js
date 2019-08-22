@@ -1,13 +1,12 @@
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
-
+import axios from '../../axios-orders';
 import withErrorHandler from '../../hoc/withErrorHandler/withErrorHandler';
 import Aux from '../../hoc/Aux/Aux';
 import Burger from '../../components/Burger/Burger';
 import BuildControls from '../../components/Burger/BuildControls/BuildControls';
 import Modal from '../../components/UI/Modal/Modal';
 import OrderSummary from '../../components/Burger/OrderSummary/OrderSummary';
-import axios from '../../axios-orders';
 import Spinner from '../../components/UI/Spinner/Spinner';
 import * as burgerBuilderActions from '../../store/actions/index';
 
@@ -16,20 +15,10 @@ class BurgerBuilder extends Component {
   state = {
     purchaseable: false,
     purchasing: false,
-    loading: false,
-    error: false
   }
 
   componentDidMount() {
-    axios.get('https://burgerbuilder-e3885.firebaseio.com/ingredients.json')
-        .then(response => {
-            this.setState({ingredients: response.data });
-        })
-        .catch(err => {
-          this.setState({
-            error: true
-          })
-        });
+    console.log(this.props);
   }
 
   updatePurchaseState(ingredients) {
@@ -63,9 +52,9 @@ class BurgerBuilder extends Component {
         disableInfo[key] = disableInfo[key] <= 0
     }
     let orderSummary = null;
-    let burger = this.props.ings ? <p> Ingredients can´t be loaded! </p> :  <Spinner />
+    let burger = this.state.error ? <p> Ingredients can´t be loaded! </p> :  <Spinner />
 
-    if(this.state.ingredients) {
+    if(this.props.ingredients) {
       burger = (
         <Aux>
         <Burger ingredients={this.props.ings} />
@@ -84,10 +73,6 @@ class BurgerBuilder extends Component {
         price={this.props.price}
         purchasedCancelled={this.purchaseCancelHandler}
         purchasedContinued={this.purchaseContinueHandler} />;
-      }
-
-      if (this.state.loading) {
-          orderSummary = <Spinner />;
       }
 
     return (
